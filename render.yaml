@@ -7,8 +7,9 @@ services:
     plan: free
     branch: main
     rootDir: backend
-    buildCommand: pip install -r requirements.txt && chmod +x setup_dirs.sh && ./setup_dirs.sh
+    buildCommand: pip install --upgrade pip && pip install -r requirements.txt && chmod +x setup_dirs.sh && ./setup_dirs.sh
     startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    runtime: python
     healthCheckPath: /health
     envVars:
       - key: PYTHON_VERSION
