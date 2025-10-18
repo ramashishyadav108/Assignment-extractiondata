@@ -1,0 +1,37 @@
+{
+  "job_id": "724ef9ae-3ea5-4e71-b797-fa35b14e4bca",
+  "status": "completed",
+  "progress": 100.0,
+  "files_count": 1,
+  "files_processed": 1,
+  "template_id": "template_1",
+  "file_names": [
+    "Horizon Capital.pdf"
+  ],
+  "errors": [],
+  "created_at": "2025-10-18T22:28:29.251912",
+  "completed_at": "2025-10-18T22:29:04.084043",
+  "output_file": "/home/ram/Rama/Assignments/AltBridge/assignment/pdf-extraction-system/output/Horizon_Capital_Extracted_Fund_Data.xlsx",
+  "extracted_data": [
+    {
+      "General Partner": "Horizon Capital Partners I Limited|Page 1, General Partner signature",
+      "ILPA GP": "Horizon Capital Partners I Limited|Derived from General Partner name",
+      "Assets Under Management": "785117530.86|Page 6, Horizon Growth Fund I L.P. Statement of financial position, Net assets / Partners' capital",
+      "Active Funds": "2|Derived from counting distinct fund names: Horizon Growth Fund I L.P. (Page 1, 6, 8) and Horizon Capital Master Fund Limited (Page 6, 7)",
+      "Active Portfolio Companies": "2|Derived from counting distinct portfolio companies: Zenith Innovations Ltd. (Page 2, 8) and EcoHarvest Solutions Inc. (Page 4)",
+      "Fund Name": "Horizon Growth Fund I L.P.|Page 1, Letter salutation",
+      "Fund Currency": "USD|Page 6, Income statement and Statement of financial position",
+      "Total Commitments": "|Not found",
+      "Total Drawdowns": "|Not found",
+      "Remaining Commitments": "|Not found",
+      "Total Number of Investments": "2|Derived from counting distinct portfolio companies mentioned across the document (Zenith Innovations Ltd. and EcoHarvest Solutions Inc.)",
+      "Total Distributions": "0|Page 8, Investment Performance table, Realised Value for Total Fund I Investments - Gross",
+      "- as % of Drawdowns": "|Not found",
+      "- as % of Commitments": "|Not found",
+      "DPI": "0|Derived from Realised Value (0) / Invested Capital (75,000,000) from Page 8, Total Fund I Investments - Gross",
+      "RVPI": "1.5333|Derived from Unrealised Value (115,000,000) / Invested Capital (75,000,000) from Page 8, Total Fund I Investments - Gross",
+      "TVPI": "1.53|Page 8, Investment Performance table, Multiple of Invested Capital for Total Fund I Investments - Gross",
+      "_source_file": "Horizon Capital.pdf"
+    }
+  ]
+}

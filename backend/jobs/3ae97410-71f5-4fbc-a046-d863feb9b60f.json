@@ -1,0 +1,15 @@
+{
+  "job_id": "3ae97410-71f5-4fbc-a046-d863feb9b60f",
+  "status": "completed",
+  "progress": 100.0,
+  "files_count": 1,
+  "files_processed": 1,
+  "template_id": "template_1",
+  "file_names": [
+    "Linolex Fund LP (1).pdf"
+  ],
+  "errors": [],
+  "created_at": "2025-10-18T22:09:00.475337",
+  "completed_at": "2025-10-18T22:09:17.082749",
+  "output_file": "/home/ram/Rama/Assignments/AltBridge/assignment/pdf-extraction-system/output/Linolex_Fund_LP_(1)_Extracted_Fund_Data.xlsx"
+}

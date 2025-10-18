@@ -1,0 +1,50 @@
+services:
+  # Backend API Service
+  - type: web
+    name: pdf-extraction-backend
+    env: python
+    region: oregon
+    plan: free
+    branch: main
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: LLM_MODEL
+        value: gemini-2.5-flash
+      - key: DEBUG
+        value: False
+      - key: UPLOAD_DIR
+        value: examples/sample_pdfs
+      - key: OUTPUT_DIR
+        value: examples/output
+      - key: TEMPLATE_DIR
+        value: templates
+      - key: CORS_ORIGINS
+        value: '["https://pdf-extraction-frontend.onrender.com"]'
+  
+  # Frontend Static Site
+  - type: web
+    name: pdf-extraction-frontend
+    env: static
+    region: oregon
+    plan: free
+    branch: main
+    buildCommand: cd frontend && npm install && npm run build && cp -r dist/* .
+    staticPublishPath: ./frontend/dist
+    headers:
+      - path: /*
+        name: Cache-Control
+        value: public, max-age=3600
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    envVars:
+      - key: VITE_API_URL
+        value: https://pdf-extraction-backend.onrender.com/api

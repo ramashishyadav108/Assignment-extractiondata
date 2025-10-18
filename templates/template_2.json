@@ -1,0 +1,115 @@
+{
+  "template_id": "template_2",
+  "name": "Fund Data Extraction - Template 2",
+  "description": "Alternative fund data extraction format with focus on key metrics and performance",
+  "columns": [
+    {
+      "name": "Fund Name",
+      "field": "fund_name",
+      "type": "string",
+      "required": true,
+      "description": "Name of the fund"
+    },
+    {
+      "name": "Manager",
+      "field": "manager",
+      "type": "string",
+      "required": false,
+      "description": "Fund manager name"
+    },
+    {
+      "name": "Vintage",
+      "field": "vintage",
+      "type": "number",
+      "required": false,
+      "description": "Vintage year"
+    },
+    {
+      "name": "Commitment",
+      "field": "commitment",
+      "type": "currency",
+      "required": false,
+      "description": "Total commitment amount"
+    },
+    {
+      "name": "Contributions",
+      "field": "contributions",
+      "type": "currency",
+      "required": false,
+      "description": "Total contributions/called capital"
+    },
+    {
+      "name": "Distributions",
+      "field": "distributions",
+      "type": "currency",
+      "required": false,
+      "description": "Total distributions received"
+    },
+    {
+      "name": "NAV",
+      "field": "nav",
+      "type": "currency",
+      "required": false,
+      "description": "Net Asset Value"
+    },
+    {
+      "name": "Total Value",
+      "field": "total_value",
+      "type": "currency",
+      "required": false,
+      "description": "Total value (NAV + Distributions)"
+    },
+    {
+      "name": "Net IRR (%)",
+      "field": "net_irr_percent",
+      "type": "percentage",
+      "required": false,
+      "description": "Net IRR percentage"
+    },
+    {
+      "name": "Net Multiple",
+      "field": "net_multiple",
+      "type": "number",
+      "required": false,
+      "description": "Net investment multiple (TVPI)"
+    },
+    {
+      "name": "DPI Multiple",
+      "field": "dpi_multiple",
+      "type": "number",
+      "required": false,
+      "description": "Distribution to Paid-In multiple"
+    },
+    {
+      "name": "RVPI Multiple",
+      "field": "rvpi_multiple",
+      "type": "number",
+      "required": false,
+      "description": "Residual Value to Paid-In multiple"
+    },
+    {
+      "name": "Strategy",
+      "field": "strategy",
+      "type": "string",
+      "required": false,
+      "description": "Investment strategy"
+    },
+    {
+      "name": "Region",
+      "field": "region",
+      "type": "string",
+      "required": false,
+      "description": "Geographic region"
+    },
+    {
+      "name": "Report Date",
+      "field": "report_date",
+      "type": "date",
+      "required": false,
+      "description": "Date of report"
+    }
+  ],
+  "required_fields": [
+    "fund_name"
+  ]
+}

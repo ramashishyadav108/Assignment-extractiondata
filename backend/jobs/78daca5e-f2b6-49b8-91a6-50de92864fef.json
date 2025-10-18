@@ -1,0 +1,16 @@
+{
+  "job_id": "78daca5e-f2b6-49b8-91a6-50de92864fef",
+  "status": "failed",
+  "progress": 0.0,
+  "files_count": 1,
+  "files_processed": 0,
+  "template_id": "template_1",
+  "file_names": [
+    "Best-Practices-Fund II.pdf"
+  ],
+  "errors": [
+    "Error processing Best-Practices-Fund II.pdf: RetryError[<Future at 0x7dc1331b4860 state=finished raised NotFound>]"
+  ],
+  "created_at": "2025-10-18T21:40:12.420822",
+  "completed_at": "2025-10-18T21:40:24.688884"
+}

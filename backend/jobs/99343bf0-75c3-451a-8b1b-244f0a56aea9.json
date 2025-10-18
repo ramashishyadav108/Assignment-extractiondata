@@ -1,0 +1,37 @@
+{
+  "job_id": "99343bf0-75c3-451a-8b1b-244f0a56aea9",
+  "status": "completed",
+  "progress": 100.0,
+  "files_count": 1,
+  "files_processed": 1,
+  "template_id": "template_1",
+  "file_names": [
+    "Linolex Fund LP (1).pdf"
+  ],
+  "errors": [],
+  "created_at": "2025-10-18T22:24:06.954812",
+  "completed_at": "2025-10-18T22:24:27.289208",
+  "output_file": "/home/ram/Rama/Assignments/AltBridge/assignment/pdf-extraction-system/output/Linolex_Fund_LP_(1)_Extracted_Fund_Data.xlsx",
+  "extracted_data": [
+    {
+      "General Partner": "Linolex GP|Page 4, Letter to Limited Partners",
+      "ILPA GP": "Linolex GP|Derived from General Partner",
+      "Assets Under Management": "217500000|Page 8, Statement of Assets and Liabilities (Total assets)",
+      "Active Funds": "|Not found",
+      "Active Portfolio Companies": "5|Page 9, Schedule of Investments (count of companies listed)",
+      "Fund Name": "Linolex Fund LP|Page 1, Cover",
+      "Fund Currency": "USD|Page 5, Summary (currency symbol used for all monetary values)",
+      "Total Commitments": "750000000|Page 5, Summary (Total Commitments $750.0m)",
+      "Total Drawdowns": "700000000|Page 5, Summary (Paid-in Capital $700.0m)",
+      "Remaining Commitments": "50000000|Derived from Total Commitments ($750.0m) - Total Drawdowns ($700.0m)",
+      "Total Number of Investments": "5|Page 9, Schedule of Investments (count of companies listed)",
+      "Total Distributions": "980000000|Page 5, Summary (Total Distribution (D) to date $980.0m)",
+      "- as % of Drawdowns": "140|Derived from (Total Distributions / Total Drawdowns) * 100 = (980,000,000 / 700,000,000) * 100",
+      "- as % of Commitments": "130.67|Derived from (Total Distributions / Total Commitments) * 100 = (980,000,000 / 750,000,000) * 100",
+      "DPI": "1.40|Page 5, Summary (DPI 1.40x)",
+      "RVPI": "0.30|Page 5, Summary (RVPI 0.30x)",
+      "TVPI": "1.70|Page 5, Summary (TVPI 1.70x)",
+      "_source_file": "Linolex Fund LP (1).pdf"
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "job_id": "56c51ffa-5706-4478-b0aa-1eb8fb4f47ed",
+  "status": "failed",
+  "progress": 0.0,
+  "files_count": 1,
+  "files_processed": 0,
+  "template_id": "template_1",
+  "file_names": [
+    "Horizon Capital.pdf"
+  ],
+  "errors": [
+    "Error processing Horizon Capital.pdf: RetryError[<Future at 0x775fab224bf0 state=finished raised NotFound>]"
+  ],
+  "created_at": "2025-10-18T21:37:24.007285",
+  "completed_at": "2025-10-18T21:37:33.059703"
+}

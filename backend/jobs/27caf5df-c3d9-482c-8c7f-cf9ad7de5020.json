@@ -1,0 +1,16 @@
+{
+  "job_id": "27caf5df-c3d9-482c-8c7f-cf9ad7de5020",
+  "status": "failed",
+  "progress": 0.0,
+  "files_count": 1,
+  "files_processed": 0,
+  "template_id": "template_1",
+  "file_names": [
+    "Best-Practices-Fund II.pdf"
+  ],
+  "errors": [
+    "Template 'template_1' not found"
+  ],
+  "created_at": "2025-10-18T21:19:09.297116",
+  "completed_at": "2025-10-18T21:19:09.928576"
+}

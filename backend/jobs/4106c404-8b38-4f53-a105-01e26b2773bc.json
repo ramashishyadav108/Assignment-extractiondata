@@ -1,0 +1,15 @@
+{
+  "job_id": "4106c404-8b38-4f53-a105-01e26b2773bc",
+  "status": "completed",
+  "progress": 100.0,
+  "files_count": 1,
+  "files_processed": 1,
+  "template_id": "template_1",
+  "file_names": [
+    "Horizon Capital.pdf"
+  ],
+  "errors": [],
+  "created_at": "2025-10-18T21:54:53.502834",
+  "completed_at": "2025-10-18T21:55:13.831132",
+  "output_file": "/home/ram/Rama/Assignments/AltBridge/assignment/pdf-extraction-system/output/extracted_data_4106c404-8b38-4f53-a105-01e26b2773bc.xlsx"
+}

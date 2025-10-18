@@ -1,0 +1,185 @@
+{
+  "template_id": "template_1",
+  "name": "Fund Data Extraction - Template 1",
+  "description": "Comprehensive fund data extraction including fund details, investment information, performance metrics, and financial data",
+  "columns": [
+    {
+      "name": "Fund Name",
+      "field": "fund_name",
+      "type": "string",
+      "required": true,
+      "description": "Name of the fund or investment vehicle"
+    },
+    {
+      "name": "Fund Manager",
+      "field": "fund_manager",
+      "type": "string",
+      "required": false,
+      "description": "Name of the fund manager or management company"
+    },
+    {
+      "name": "Vintage Year",
+      "field": "vintage_year",
+      "type": "number",
+      "required": false,
+      "description": "Year the fund was established or started investing"
+    },
+    {
+      "name": "Fund Size",
+      "field": "fund_size",
+      "type": "currency",
+      "required": false,
+      "description": "Total committed capital or fund size"
+    },
+    {
+      "name": "Investment Strategy",
+      "field": "investment_strategy",
+      "type": "string",
+      "required": false,
+      "description": "Primary investment strategy or focus area"
+    },
+    {
+      "name": "Geographic Focus",
+      "field": "geographic_focus",
+      "type": "string",
+      "required": false,
+      "description": "Geographic regions targeted for investment"
+    },
+    {
+      "name": "Sector Focus",
+      "field": "sector_focus",
+      "type": "string",
+      "required": false,
+      "description": "Industry sectors or verticals targeted"
+    },
+    {
+      "name": "Total Committed Capital",
+      "field": "total_committed_capital",
+      "type": "currency",
+      "required": false,
+      "description": "Total amount committed by investors"
+    },
+    {
+      "name": "Drawn Capital",
+      "field": "drawn_capital",
+      "type": "currency",
+      "required": false,
+      "description": "Amount of capital called/drawn from commitments"
+    },
+    {
+      "name": "Remaining Commitment",
+      "field": "remaining_commitment",
+      "type": "currency",
+      "required": false,
+      "description": "Uncalled capital remaining"
+    },
+    {
+      "name": "Net IRR",
+      "field": "net_irr",
+      "type": "percentage",
+      "required": false,
+      "description": "Net Internal Rate of Return"
+    },
+    {
+      "name": "Gross IRR",
+      "field": "gross_irr",
+      "type": "percentage",
+      "required": false,
+      "description": "Gross Internal Rate of Return"
+    },
+    {
+      "name": "TVPI",
+      "field": "tvpi",
+      "type": "number",
+      "required": false,
+      "description": "Total Value to Paid-In multiple"
+    },
+    {
+      "name": "DPI",
+      "field": "dpi",
+      "type": "number",
+      "required": false,
+      "description": "Distributions to Paid-In multiple"
+    },
+    {
+      "name": "RVPI",
+      "field": "rvpi",
+      "type": "number",
+      "required": false,
+      "description": "Residual Value to Paid-In multiple"
+    },
+    {
+      "name": "Number of Investments",
+      "field": "number_of_investments",
+      "type": "number",
+      "required": false,
+      "description": "Total number of portfolio companies or investments"
+    },
+    {
+      "name": "Active Investments",
+      "field": "active_investments",
+      "type": "number",
+      "required": false,
+      "description": "Number of current active investments"
+    },
+    {
+      "name": "Realized Investments",
+      "field": "realized_investments",
+      "type": "number",
+      "required": false,
+      "description": "Number of exited/realized investments"
+    },
+    {
+      "name": "Management Fee",
+      "field": "management_fee",
+      "type": "percentage",
+      "required": false,
+      "description": "Annual management fee percentage"
+    },
+    {
+      "name": "Carried Interest",
+      "field": "carried_interest",
+      "type": "percentage",
+      "required": false,
+      "description": "Carried interest or performance fee percentage"
+    },
+    {
+      "name": "Fund Term",
+      "field": "fund_term",
+      "type": "string",
+      "required": false,
+      "description": "Fund duration or term (e.g., '10 years')"
+    },
+    {
+      "name": "Investment Period",
+      "field": "investment_period",
+      "type": "string",
+      "required": false,
+      "description": "Duration of the investment period"
+    },
+    {
+      "name": "First Close Date",
+      "field": "first_close_date",
+      "type": "date",
+      "required": false,
+      "description": "Date of first closing"
+    },
+    {
+      "name": "Final Close Date",
+      "field": "final_close_date",
+      "type": "date",
+      "required": false,
+      "description": "Date of final closing"
+    },
+    {
+      "name": "As of Date",
+      "field": "as_of_date",
+      "type": "date",
+      "required": false,
+      "description": "Date of the report or data snapshot"
+    }
+  ],
+  "required_fields": [
+    "fund_name"
+  ]
+}

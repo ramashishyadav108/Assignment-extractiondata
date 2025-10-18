@@ -1,0 +1,15 @@
+{
+  "job_id": "b1282fca-df2f-4cec-a398-35dd9ddbba7d",
+  "status": "completed",
+  "progress": 100.0,
+  "files_count": 1,
+  "files_processed": 1,
+  "template_id": "template_1",
+  "file_names": [
+    "Best-Practices-Fund II.pdf"
+  ],
+  "errors": [],
+  "created_at": "2025-10-18T22:08:25.300242",
+  "completed_at": "2025-10-18T22:09:00.472961",
+  "output_file": "/home/ram/Rama/Assignments/AltBridge/assignment/pdf-extraction-system/output/Best-Practices-Fund_II_Extracted_Fund_Data.xlsx"
+}

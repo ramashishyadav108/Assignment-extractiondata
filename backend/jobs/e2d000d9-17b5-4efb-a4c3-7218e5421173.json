@@ -1,0 +1,16 @@
+{
+  "job_id": "e2d000d9-17b5-4efb-a4c3-7218e5421173",
+  "status": "failed",
+  "progress": 0.0,
+  "files_count": 1,
+  "files_processed": 0,
+  "template_id": "template_2",
+  "file_names": [
+    "Horizon Capital.pdf"
+  ],
+  "errors": [
+    "Template 'template_2' not found"
+  ],
+  "created_at": "2025-10-18T21:12:14.123450",
+  "completed_at": "2025-10-18T21:12:14.124765"
+}
