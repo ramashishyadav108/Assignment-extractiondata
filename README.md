@@ -2,9 +2,10 @@
 
 A production-ready web application that extracts structured data from PDF documents using LLM technology (OpenAI GPT-4 / Anthropic Claude) and outputs formatted Excel files.
 
-![Python](https://img.shields.io/badge/Python-3.9+-blue)
+![Python](https://img.shields.io/badge/Python-3.11.9-blue)
 ![FastAPI](https://img.shields.io/badge/FastAPI-0.104-green)
 ![React](https://img.shields.io/badge/React-18.2-blue)
+![Gemini](https://img.shields.io/badge/Gemini-2.5--Flash-orange)
 ![License](https://img.shields.io/badge/License-MIT-yellow)
 
 ## 🎯 Features
@@ -27,9 +28,9 @@ User → React Frontend → FastAPI Backend → PDF Parser → LLM API → Excel
 
 ## 📋 Prerequisites
 
-- **Python 3.9+**
+- **Python 3.11.9** (recommended for deployment)
 - **Node.js 18+**
-- **Google Gemini API Key**
+- **Google Gemini API Key** (free tier available)
 
 ## 🚀 Quick Start
 
@@ -105,11 +106,11 @@ The API will be available at `http://localhost:8000`
 
 ## 🔧 LLM Configuration
 
-This system uses **Google Gemini** (gemini-1.5-pro) for intelligent data extraction.
+This system uses **Google Gemini 2.5 Flash** for intelligent data extraction.
 
 ### Get Your Gemini API Key
 
-1. Go to [Google AI Studio](https://makersuite.google.com/app/apikey)
+1. Go to [Google AI Studio](https://aistudio.google.com/app/apikey)
 2. Sign in with your Google account
 3. Click "Create API Key"
 4. Copy the key and add it to `backend/.env`:
@@ -118,13 +119,13 @@ This system uses **Google Gemini** (gemini-1.5-pro) for intelligent data extract
    ```
 
 ### Supported Models
-- `gemini-1.5-pro` (recommended)
-- `gemini-1.5-flash` (faster, lower cost)
-- `gemini-pro`
+- `gemini-2.5-flash` (current default - fast & accurate)
+- `gemini-1.5-pro` (older, more expensive)
+- `gemini-1.5-flash` (legacy)
 
 Change the model in `.env`:
 ```env
-LLM_MODEL=gemini-1.5-pro
+LLM_MODEL=gemini-2.5-flash
 ```
 
 ## 🔧 API Documentation
@@ -170,6 +171,26 @@ Download extracted Excel file.
 
 **Response**: Excel file (.xlsx)
 
+#### `GET /api/templates`
+List all available extraction templates.
+
+**Response**:
+```json
+{
+  "templates": {
+    "template_1": "Fund Data Extraction - Template 1",
+    "template_2": "Fund Data Extraction - Template 2"
+  },
+  "template_dir": "/path/to/templates",
+  "count": 2
+}
+```
+
+#### `GET /api/templates/{template_id}`
+Get specific template configuration.
+
+**Response**: Template schema with all fields and validation rules.
+
 ### Interactive API Documentation
 
 Visit `http://localhost:8000/docs` for Swagger UI documentation.
@@ -184,11 +205,15 @@ pdf-extraction-system/
 │   │   │   ├── upload.py
 │   │   │   ├── status.py
 │   │   │   ├── download.py
-│   │   │   └── extraction.py
+│   │   │   ├── templates.py  # Template listing API
+│   │   │   ├── extraction.py
+│   │   │   └── enhanced_extraction.py
 │   │   ├── services/         # Core services
 │   │   │   ├── pdf_parser.py
 │   │   │   ├── llm_extractor.py
+│   │   │   ├── enhanced_llm_extractor.py
 │   │   │   ├── excel_generator.py
+│   │   │   ├── enhanced_excel_generator.py
 │   │   │   ├── validator.py
 │   │   │   ├── template_manager.py
 │   │   │   └── job_manager.py
@@ -197,8 +222,13 @@ pdf-extraction-system/
 │   │   ├── config/           # Configuration
 │   │   │   └── settings.py
 │   │   └── main.py           # FastAPI app
+│   ├── templates/            # Extraction templates (deployed with backend)
+│   │   ├── template_1.json
+│   │   ├── template_2.json
+│   │   └── portfolio_summary_template.json
 │   ├── requirements.txt
-│   ├── Dockerfile
+│   ├── runtime.txt           # Python version for Render
+│   ├── setup_dirs.sh
 │   └── .env.example
 │
 ├── frontend/
@@ -207,6 +237,7 @@ pdf-extraction-system/
 │   │   │   ├── FileUpload.jsx
 │   │   │   ├── TemplateSelector.jsx
 │   │   │   ├── ExtractionProgress.jsx
+│   │   │   ├── DataPreview.jsx
 │   │   │   └── DownloadButton.jsx
 │   │   ├── services/         # API services
 │   │   │   └── api.js
@@ -215,11 +246,7 @@ pdf-extraction-system/
 │   │   └── main.jsx
 │   ├── package.json
 │   ├── vite.config.js
-│   └── Dockerfile
-│
-├── templates/                # Extraction templates
-│   ├── template_1.json
-│   └── template_2.json
+│   └── index.html
 │
 ├── tests/                    # Test files
 │   ├── test_extraction.py
@@ -229,7 +256,8 @@ pdf-extraction-system/
 │   ├── sample_pdfs/
 │   └── output/
 │
-├── docker-compose.yml
+├── .python-version           # Python version specification
+├── render.yaml               # Render deployment config
 ├── .gitignore
 └── README.md
 ```
@@ -285,14 +313,19 @@ pytest tests/test_accuracy.py -v
 | Variable | Description | Default |
 |----------|-------------|---------|
 | `GEMINI_API_KEY` | Google Gemini API key | Required |
-| `LLM_MODEL` | Model to use | gemini-1.5-pro |
+| `LLM_MODEL` | Model to use | gemini-2.5-flash |
 | `LLM_TEMPERATURE` | Model temperature | 0.1 |
+| `LLM_MAX_RETRIES` | Max retry attempts | 3 |
 | `MAX_UPLOAD_SIZE` | Max file size (bytes) | 52428800 |
-| `CORS_ORIGINS` | Allowed origins | ["http://localhost:3000", "http://localhost:5173"] |
+| `UPLOAD_DIR` | Upload directory | examples/sample_pdfs |
+| `OUTPUT_DIR` | Output directory | examples/output |
+| `TEMPLATE_DIR` | Template directory | templates |
+| `CORS_ORIGINS` | Allowed origins | ["*"] |
+| `DEBUG` | Debug mode | True |
 
 ### Supported LLM Models
 
-- Google Gemini: `gemini-1.5-pro`, `gemini-1.5-flash`, `gemini-pro`
+- Google Gemini: `gemini-2.5-flash` (default), `gemini-1.5-pro`, `gemini-1.5-flash`
 
 ## 📊 Performance
 
@@ -303,39 +336,98 @@ pytest tests/test_accuracy.py -v
 
 ## 🚀 Deployment
 
-### Production Deployment Checklist
+### Quick Deploy (Render)
 
-- [ ] Set `DEBUG=False` in environment
-- [ ] Configure production database (PostgreSQL)
-- [ ] Set up proper CORS origins
-- [ ] Enable HTTPS
-- [ ] Configure rate limiting
-- [ ] Set up logging and monitoring
-- [ ] Configure file cleanup jobs
-- [ ] Set up backup strategy
-- [ ] Enable API authentication (if needed)
+This project is configured for **one-push deployment** to Render using `render.yaml`.
 
-### Deploy to Cloud
+**Prerequisites:**
+- GitHub account
+- Render account (free tier available)
+- Gemini API key
 
-#### Vercel (Frontend)
+**Steps:**
+
+1. **Push to GitHub:**
 ```bash
-cd frontend
-npm run build
-# Deploy dist/ folder to Vercel
+git push origin main
 ```
 
-#### Railway/Render (Backend)
+2. **Connect to Render:**
+   - Go to [Render Dashboard](https://dashboard.render.com/)
+   - Click "New" → "Blueprint"
+   - Connect your GitHub repository
+   - Render will auto-detect `render.yaml`
+
+3. **Add Environment Variables:**
+   - Add `GEMINI_API_KEY` in Render dashboard
+   - Other variables are auto-configured
+
+4. **Deploy:**
+   - Click "Apply"
+   - Wait 5-10 minutes for deployment
+   - Backend: `https://pdf-extraction-backend.onrender.com`
+   - Frontend: `https://pdf-extraction-frontend.onrender.com`
+
+### Python Version Configuration
+
+The project uses **Python 3.11.9** for production:
+- Specified in `.python-version`
+- Configured in `backend/runtime.txt`
+- Set in `render.yaml` as `runtime: python-3.11.9`
+
+### Template Files
+
+Templates are **deployed with the backend**:
+- Located in `backend/templates/`
+- Automatically included in deployment
+- API endpoint: `/api/templates` to verify
+
+### Production Deployment Checklist
+
+- [x] Python 3.11.9 configured
+- [x] Templates in backend directory
+- [x] `render.yaml` configured
+- [ ] Set `DEBUG=False` in Render environment
+- [ ] Configure production CORS origins
+- [ ] Add `GEMINI_API_KEY` to Render
+- [ ] Configure frontend `VITE_API_URL`
+- [ ] Enable HTTPS (auto on Render)
+- [ ] Set up logging and monitoring
+- [ ] Configure file cleanup jobs (optional)
+
+### Alternative Deployment Options
+
+#### Vercel (Frontend) + Render (Backend)
 ```bash
-# Use Dockerfile for deployment
-# Set environment variables in platform
+# Frontend on Vercel
+cd frontend
+npm run build
+vercel deploy
+
+# Backend on Render (using render.yaml)
+git push origin main
 ```
 
 #### AWS/GCP/Azure
-Use provided Dockerfile and docker-compose.yml for containerized deployment.
+Use provided configuration files for containerized deployment.
 
 ## 🐛 Troubleshooting
 
 ### Common Issues
+
+**Issue**: "Templates Not Found" error
+```bash
+# Solution 1: Verify templates exist in backend
+ls backend/templates/
+
+# Solution 2: Check API endpoint
+curl https://your-backend-url.com/api/templates
+
+# Solution 3: Ensure templates are committed to git
+git add backend/templates/
+git commit -m "Add templates"
+git push
+```
 
 **Issue**: "Import errors" when running backend
 ```bash
@@ -349,6 +441,9 @@ export PYTHONPATH="${PYTHONPATH}:$(pwd)"
 ```bash
 # Check .env file exists and contains valid keys
 cat backend/.env
+
+# For Render deployment, verify in dashboard:
+# Settings → Environment → GEMINI_API_KEY
 ```
 
 **Issue**: "CORS errors" in frontend
@@ -357,70 +452,26 @@ cat backend/.env
 CORS_ORIGINS=["http://localhost:5173", "https://your-domain.com"]
 ```
 
+**Issue**: "Python version mismatch on Render"
+```bash
+# Verify these files specify Python 3.11.9:
+cat .python-version          # Should be: 3.11.9
+cat backend/runtime.txt      # Should be: python-3.11.9
+cat render.yaml              # Should have: runtime: python-3.11.9
+```
+
+**Issue**: "PyMuPDF build errors on deployment"
+```bash
+# Ensure requirements.txt has compatible version:
+# PyMuPDF==1.23.26 (has pre-built wheels for Python 3.11)
+# Avoid PyMuPDF 1.24+ (requires Rust compilation)
+```
+
 **Issue**: "Extraction accuracy low"
 - Ensure PDF text is extractable (not scanned images)
 - Try adjusting LLM_TEMPERATURE
 - Customize extraction prompt for specific document types
 - Consider using OCR for scanned documents
-
----
-
-## 🚀 Deployment
-
-### Single-Push Deployment (Recommended)
-
-Deploy both frontend and backend in **ONE PUSH**! See **[DEPLOY.md](./DEPLOY.md)** for complete guide.
-
-#### Option 1: All on Render (Simplest)
-```bash
-git push origin main
-# Both frontend + backend deploy automatically via render.yaml!
-```
-
-- ✅ Single platform
-- ✅ Auto-configured CORS  
-- ✅ Free tier available
-- 🌐 URLs: 
-  - Backend: `https://pdf-extraction-backend.onrender.com`
-  - Frontend: `https://pdf-extraction-frontend.onrender.com`
-
-#### Option 2: Render + Vercel
-- Backend on Render (Python web service)
-- Frontend on Vercel (Static CDN)
-- Better for high-traffic applications
-
-**Quick Steps:**
-1. Push to GitHub: `git push origin main`
-2. Connect to Render/Vercel dashboard
-3. Add `GEMINI_API_KEY` environment variable
-4. Done! 🎉
-
-**Detailed Instructions:** See [DEPLOY.md](./DEPLOY.md)
-
-### Environment Variables for Production
-
-**Backend (Render):**
-```env
-GEMINI_API_KEY=your_actual_api_key
-PYTHON_VERSION=3.11.0
-LLM_MODEL=gemini-2.5-flash
-DEBUG=False
-CORS_ORIGINS=["https://your-frontend-url.com"]
-```
-
-**Frontend (Vercel/Render):**
-```env
-VITE_API_URL=https://your-backend-url.com/api
-```
-
-### Pre-Deployment Checklist
-- [ ] `.env` files not in git (check `.gitignore`)
-- [ ] API keys secured in platform environment variables
-- [ ] CORS configured with production URLs
-- [ ] Frontend built successfully (`npm run build`)
-- [ ] Backend tested locally
-
-See **[PRE_DEPLOYMENT_CHECKLIST.md](./PRE_DEPLOYMENT_CHECKLIST.md)** for complete list.
 
 ---
 
@@ -441,9 +492,10 @@ This project is licensed under the MIT License.
 ## 🙏 Acknowledgments
 
 - FastAPI for the excellent web framework
-- OpenAI/Anthropic for LLM APIs
-- pdfplumber for PDF parsing
-- openpyxl for Excel generation
+- Google Gemini for powerful LLM APIs
+- pdfplumber & PyMuPDF for PDF parsing
+- openpyxl & xlsxwriter for Excel generation
+- React & Vite for modern frontend development
 
 ## 📞 Support
 
@@ -454,13 +506,24 @@ For issues and questions:
 
 ## 🔄 Version History
 
-### v1.0.0 (2024-01-01)
-- Initial release
-- Support for GPT-4 and Claude 3.5
-- Two extraction templates
+### v1.0.0 (Current)
+- Initial production release
+- Google Gemini 2.5 Flash integration
+- Three extraction templates (Template 1, 2, Portfolio Summary)
 - React frontend with real-time progress
-- Docker support
+- Enhanced extraction with validation
+- Render deployment configuration
+- Python 3.11.9 compatibility
 
 ---
 
-**Built with ❤️ Joy  using React, FastAPI, and LLM Technology**
+## 📚 Additional Resources
+
+- **API Documentation**: `http://localhost:8000/docs` (when running locally)
+- **Template Schema**: Check `/api/templates` endpoint
+- **Render Docs**: [render.com/docs](https://render.com/docs)
+- **Gemini API**: [ai.google.dev](https://ai.google.dev)
+
+---
+
+**Built with ❤️ using React, FastAPI, and Google Gemini**

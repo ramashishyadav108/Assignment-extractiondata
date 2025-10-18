@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 import logging
 
 from app.config.settings import settings
-from app.api import upload, status, download
+from app.api import upload, status, download, templates
 
 # Configure logging
 logging.basicConfig(
@@ -33,6 +33,7 @@ app.add_middleware(
 app.include_router(upload.router, prefix="/api", tags=["upload"])
 app.include_router(status.router, prefix="/api", tags=["status"])
 app.include_router(download.router, prefix="/api", tags=["download"])
+app.include_router(templates.router, prefix="/api", tags=["templates"])
 
 # Import and include results router
 from app.api import results

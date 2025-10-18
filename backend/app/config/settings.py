@@ -3,10 +3,12 @@ from pathlib import Path
 from pydantic_settings import BaseSettings
 from pydantic import model_validator
 
-# Get the backend directory  (where this file's parent/parent/parent is)
+# Get the backend directory (where this file's parent/parent/parent is)
 BACKEND_DIR = Path(__file__).resolve().parent.parent.parent
 # Project root directory (parent of backend)
 PROJECT_ROOT = BACKEND_DIR.parent
+# Use backend dir for deployment, fall back to project root for local dev
+DEPLOYMENT_ROOT = BACKEND_DIR if (BACKEND_DIR / "templates").exists() else PROJECT_ROOT
 
 
 class Settings(BaseSettings):
@@ -52,7 +54,13 @@ class Settings(BaseSettings):
         if not self.OUTPUT_DIR.is_absolute():
             self.OUTPUT_DIR = PROJECT_ROOT / self.OUTPUT_DIR
         if not self.TEMPLATE_DIR.is_absolute():
-            self.TEMPLATE_DIR = PROJECT_ROOT / self.TEMPLATE_DIR
+            # Check if templates exist in backend dir (for Render deployment)
+            backend_templates = BACKEND_DIR / self.TEMPLATE_DIR
+            if backend_templates.exists():
+                self.TEMPLATE_DIR = backend_templates
+            else:
+                # Fall back to project root (for local development)
+                self.TEMPLATE_DIR = PROJECT_ROOT / self.TEMPLATE_DIR
         return self
 
 
