@@ -7,7 +7,7 @@ services:
     plan: free
     branch: main
     rootDir: backend
-    buildCommand: pip install -r requirements.txt
+    buildCommand: pip install -r requirements.txt && chmod +x setup_dirs.sh && ./setup_dirs.sh
     startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
     healthCheckPath: /health
     envVars:
@@ -26,7 +26,7 @@ services:
       - key: TEMPLATE_DIR
         value: templates
       - key: CORS_ORIGINS
-        value: '["https://pdf-extraction-frontend.onrender.com"]'
+        value: '["*"]'
   
   # Frontend Static Site
   - type: web
