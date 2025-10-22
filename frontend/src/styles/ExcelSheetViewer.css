@@ -1,0 +1,259 @@
+/* Excel Viewer Container */
+.excel-viewer {
+  width: 100%;
+  height: 600px;
+  background: #ffffff;
+  border: 1px solid #d1d1d1;
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  overflow: hidden;
+}
+
+.excel-viewer-empty {
+  padding: 40px;
+  text-align: center;
+  color: #666;
+  font-size: 16px;
+}
+
+/* Sheet Tabs */
+.excel-tabs {
+  display: flex;
+  background: #f3f3f3;
+  border-bottom: 2px solid #d1d1d1;
+  overflow-x: auto;
+  flex-shrink: 0;
+}
+
+.excel-tab {
+  padding: 10px 20px;
+  border: none;
+  background: #e7e7e7;
+  border-right: 1px solid #d1d1d1;
+  cursor: pointer;
+  font-size: 13px;
+  color: #333;
+  white-space: nowrap;
+  transition: background 0.2s;
+}
+
+.excel-tab:hover {
+  background: #d8d8d8;
+}
+
+.excel-tab.active {
+  background: #ffffff;
+  color: #217346;
+  font-weight: 600;
+  border-bottom: 2px solid #217346;
+  margin-bottom: -2px;
+}
+
+/* Sheet Content */
+.excel-sheet {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.excel-sheet-name {
+  padding: 8px 16px;
+  background: #fafafa;
+  border-bottom: 1px solid #e1e1e1;
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+}
+
+/* Grid Container */
+.excel-grid-container {
+  flex: 1;
+  overflow: auto;
+  background: #ffffff;
+}
+
+/* Excel Grid Table */
+.excel-grid {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  table-layout: auto;
+}
+
+.excel-grid thead {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: #217346;
+}
+
+.excel-grid th {
+  padding: 10px 12px;
+  text-align: left;
+  font-weight: 600;
+  color: #ffffff;
+  background: #217346;
+  border: 1px solid #1a5c37;
+  white-space: nowrap;
+}
+
+.excel-grid tbody tr {
+  background: #ffffff;
+}
+
+.excel-grid tbody tr:nth-child(even) {
+  background: #f9f9f9;
+}
+
+.excel-grid tbody tr:hover {
+  background: #e8f5e9;
+}
+
+.excel-grid td {
+  padding: 8px 12px;
+  border: 1px solid #e1e1e1;
+  color: #333;
+  white-space: nowrap;
+  max-width: 300px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Cell value formatting */
+.excel-grid td[data-type="number"] {
+  text-align: right;
+  font-family: 'Courier New', monospace;
+}
+
+/* Scrollbar styling */
+.excel-grid-container::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+
+.excel-grid-container::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.excel-grid-container::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 6px;
+}
+
+.excel-grid-container::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .excel-viewer {
+    height: 550px;
+  }
+
+  .excel-grid {
+    font-size: 13px;
+  }
+
+  .excel-grid th,
+  .excel-grid td {
+    padding: 7px 10px;
+  }
+}
+
+@media (max-width: 768px) {
+  .excel-viewer {
+    height: 500px;
+  }
+  
+  .excel-tab {
+    padding: 8px 12px;
+    font-size: 12px;
+  }
+  
+  .excel-grid {
+    font-size: 12px;
+  }
+  
+  .excel-grid th,
+  .excel-grid td {
+    padding: 6px 8px;
+    min-width: 80px;
+  }
+
+  .excel-tabs-container {
+    padding: 0.75rem 0.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .excel-viewer {
+    height: 450px;
+  }
+  
+  .excel-tab {
+    padding: 7px 10px;
+    font-size: 11px;
+  }
+  
+  .excel-grid {
+    font-size: 11px;
+  }
+  
+  .excel-grid th,
+  .excel-grid td {
+    padding: 5px 6px;
+    min-width: 70px;
+  }
+
+  .excel-tabs-container {
+    padding: 0.625rem 0.375rem;
+  }
+}
+
+@media (max-width: 360px) {
+  .excel-viewer {
+    height: 400px;
+  }
+  
+  .excel-tab {
+    padding: 6px 8px;
+    font-size: 10px;
+  }
+  
+  .excel-grid {
+    font-size: 10px;
+  }
+  
+  .excel-grid th,
+  .excel-grid td {
+    padding: 4px 5px;
+    min-width: 60px;
+  }
+}
+
+/* Loading state */
+.excel-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 400px;
+  color: #666;
+}
+
+.excel-loading .spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #217346;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-right: 12px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}

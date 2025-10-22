@@ -9,13 +9,12 @@ const api = axios.create({
 export const uploadFiles = async (files, templateId) => {
   const formData = new FormData();
   
-  files.forEach((file) => {
-    formData.append('files', file);
-  });
+  // The new backend only supports single file upload
+  const file = files[0];
+  formData.append('file', file);
+  formData.append('template_id', templateId || 'fund_report_v1');
   
-  formData.append('template_id', templateId);
-  
-  const response = await api.post('/upload', formData, {
+  const response = await api.post('/extract', formData, {
     headers: {
       'Content-Type': 'multipart/form-data',
     },
@@ -25,17 +24,30 @@ export const uploadFiles = async (files, templateId) => {
 };
 
 export const getJobStatus = async (jobId) => {
-  const response = await api.get(`/status/${jobId}`);
-  return response.data;
+  // For the new backend, this is not needed as extraction is synchronous
+  // Return completed status
+  return { status: 'completed', job_id: jobId };
 };
 
 export const getExtractionResults = async (jobId) => {
-  const response = await api.get(`/results/${jobId}`);
+  // For the new backend, results are returned immediately from upload
+  // This is just a placeholder
+  return { success: true, output_file: jobId };
+};
+
+export const downloadResult = (filename) => {
+  return `${API_BASE_URL}/download/${filename}`;
+};
+
+export const getExtractionHistory = async () => {
+  const response = await api.get('/results');
   return response.data;
 };
 
-export const downloadResult = (jobId) => {
-  return `${API_BASE_URL}/download/${jobId}`;
+export const downloadFile = async (filename) => {
+  const url = `${API_BASE_URL}/download/${filename}`;
+  window.open(url, '_blank');
 };
 
 export default api;
+

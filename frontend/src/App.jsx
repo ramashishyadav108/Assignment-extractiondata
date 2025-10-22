@@ -1,147 +1,227 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { Routes, Route, useNavigate, useLocation, Navigate } from 'react-router-dom';
+import toast, { Toaster } from 'react-hot-toast';
+import Header from './components/Header';
+import Footer from './components/Footer';
 import FileUpload from './components/FileUpload';
-import TemplateSelector from './components/TemplateSelector';
-import ExtractionProgress from './components/ExtractionProgress';
-import DownloadButton from './components/DownloadButton';
-import DataPreview from './components/DataPreview';
+import ProcessingPage from './components/ProcessingPage';
+import ResultsPage from './components/ResultsPage';
+import HistoryPage from './components/HistoryPage';
+import CompareXLSX from './components/CompareXLSX';
 import { uploadFiles } from './services/api';
 import './App.css';
 
 function App() {
+  const navigate = useNavigate();
+  const location = useLocation();
   const [selectedFiles, setSelectedFiles] = useState([]);
-  const [selectedTemplate, setSelectedTemplate] = useState('template_1');
-  const [jobId, setJobId] = useState(null);
-  const [extractionStatus, setExtractionStatus] = useState(null);
-  const [isProcessing, setIsProcessing] = useState(false);
+  const [outputFilename, setOutputFilename] = useState(null);
   const [error, setError] = useState(null);
+  const [processingComplete, setProcessingComplete] = useState(false);
+
+  // Determine current page from URL
+  const getCurrentPage = () => {
+    const path = location.pathname;
+    if (path === '/') return 'upload';
+    if (path === '/processing') return 'processing';
+    if (path === '/results') return 'results';
+    if (path === '/history') return 'history';
+    if (path === '/compare') return 'compare';
+    if (path === '/compare-output') return 'compare';
+    return 'upload';
+  };
+
+  const currentPage = getCurrentPage();
 
   const handleFilesSelected = (files) => {
     setSelectedFiles(files);
     setError(null);
+    if (files.length > 0) {
+      toast.success(`${files.length} file${files.length > 1 ? 's' : ''} selected`);
+    }
   };
 
-  const handleTemplateSelect = (templateId) => {
-    setSelectedTemplate(templateId);
+  const handleProgressComplete = (progress) => {
+    if (progress === 100) {
+      setProcessingComplete(true);
+      toast.success('Extraction completed successfully! 🎉');
+      // Wait a moment at 100% before showing results
+      setTimeout(() => {
+        navigate('/results');
+      }, 800);
+    }
   };
 
   const handleStartExtraction = async () => {
     if (selectedFiles.length === 0) {
+      toast.error('Please select at least one PDF file');
       setError('Please select at least one PDF file');
       return;
     }
 
-    if (!selectedTemplate) {
-      setError('Please select a template');
-      return;
-    }
-
-    setIsProcessing(true);
+    toast.loading('Starting extraction...', { id: 'extraction' });
+    navigate('/processing');
     setError(null);
+    setProcessingComplete(false);
 
     try {
-      const response = await uploadFiles(selectedFiles, selectedTemplate);
-      setJobId(response.job_id);
+      // The new backend returns results immediately (synchronous)
+      const response = await uploadFiles(selectedFiles, 'fund_report_v1');
+      
+      if (response.success) {
+        // Store the output filename
+        setOutputFilename(response.output_file);
+        toast.success('File uploaded successfully!', { id: 'extraction' });
+        // Results will be shown after progress reaches 100%
+      } else {
+        throw new Error(response.message || 'Extraction failed');
+      }
     } catch (err) {
-      setError(err.response?.data?.detail || 'Upload failed. Please try again.');
-      setIsProcessing(false);
+      const errorMessage = err.response?.data?.detail || err.message || 'Upload failed. Please try again.';
+      toast.error(errorMessage, { id: 'extraction' });
+      setError(errorMessage);
+      navigate('/');
     }
   };
 
-  const handleExtractionComplete = (status) => {
-    setExtractionStatus('completed');
-    setIsProcessing(false);
-  };
-
-  const handleExtractionError = (errors) => {
-    setError(errors.join(', '));
-    setExtractionStatus('failed');
-    setIsProcessing(false);
-  };
-
-  const handleReset = () => {
+  const handleStartNew = () => {
+    navigate('/');
     setSelectedFiles([]);
-    setSelectedTemplate('template_1');
-    setJobId(null);
-    setExtractionStatus(null);
-    setIsProcessing(false);
+    setOutputFilename(null);
     setError(null);
+    setProcessingComplete(false);
+    toast.success('Ready for new extraction');
+  };
+
+  const handleNavigateHistory = () => {
+    navigate('/history');
+  };
+
+  const handleNavigateCompare = () => {
+    navigate('/compare');
+    toast.success('Select two Excel files to compare');
+  };
+
+  const handleCompareOutput = () => {
+    navigate('/compare-output');
+    toast.success('Select expected output file to compare');
+  };
+
+  const handleBackToResults = () => {
+    navigate('/results');
+  };
+
+  const handleViewHistoryFile = (filename) => {
+    setOutputFilename(filename);
+    navigate('/results');
+    toast.success('Loading extraction results');
   };
 
   return (
     <div className="app">
-      <header className="app-header">
-        <h1>📄 PDF Data Extraction System</h1>
-        <p>Extract structured data from PDF documents using AI</p>
-      </header>
+      <Toaster
+        position="top-right"
+        toastOptions={{
+          duration: 3000,
+          style: {
+            background: 'var(--surface)',
+            color: 'var(--text-primary)',
+            border: '1px solid var(--border)',
+            padding: '16px',
+            borderRadius: '8px',
+            fontSize: '14px',
+            fontWeight: '500',
+          },
+          success: {
+            iconTheme: {
+              primary: 'var(--success-color)',
+              secondary: 'white',
+            },
+          },
+          error: {
+            iconTheme: {
+              primary: 'var(--error-color)',
+              secondary: 'white',
+            },
+          },
+          loading: {
+            iconTheme: {
+              primary: 'var(--primary-color)',
+              secondary: 'white',
+            },
+          },
+        }}
+      />
+      
+      <Header 
+        currentPage={currentPage} 
+        onNavigateHome={handleStartNew}
+        onNavigateHistory={handleNavigateHistory}
+        onNavigateCompare={handleNavigateCompare}
+      />
 
       <main className="app-main">
-        {!jobId ? (
-          <div className="upload-section">
-            <FileUpload
-              onFilesSelected={handleFilesSelected}
-              disabled={isProcessing}
+        <Routes>
+          {/* Upload Page */}
+          <Route path="/" element={
+            <div className="upload-section">
+              <FileUpload
+                onFilesSelected={handleFilesSelected}
+                disabled={false}
+              />
+
+              <button
+                onClick={handleStartExtraction}
+                disabled={selectedFiles.length === 0}
+                className="start-btn"
+              >
+                Extract Data
+              </button>
+            </div>
+          } />
+
+          {/* Processing Page */}
+          <Route path="/processing" element={
+            <ProcessingPage 
+              fileName={selectedFiles[0]?.name} 
+              onProgressUpdate={handleProgressComplete}
             />
+          } />
 
-            <TemplateSelector
-              selectedTemplate={selectedTemplate}
-              onTemplateSelect={handleTemplateSelect}
-              disabled={isProcessing}
+          {/* Results Page */}
+          <Route path="/results" element={
+            <ResultsPage 
+              filename={outputFilename} 
+              onStartNew={handleStartNew}
+              onCompare={handleCompareOutput}
             />
+          } />
 
-            {error && (
-              <div className="error-message">
-                <svg
-                  className="error-icon"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                  />
-                </svg>
-                {error}
-              </div>
-            )}
+          {/* History Page */}
+          <Route path="/history" element={
+            <HistoryPage onViewFile={handleViewHistoryFile} />
+          } />
 
-            <button
-              onClick={handleStartExtraction}
-              disabled={selectedFiles.length === 0 || !selectedTemplate || isProcessing}
-              className="start-btn"
-            >
-              {isProcessing ? 'Starting...' : 'Start Extraction'}
-            </button>
-          </div>
-        ) : (
-          <div className="extraction-section">
-            <ExtractionProgress
-              jobId={jobId}
-              onComplete={handleExtractionComplete}
-              onError={handleExtractionError}
+          {/* Compare XLSX Page (Dual mode - from header) */}
+          <Route path="/compare" element={
+            <CompareXLSX mode="dual" />
+          } />
+
+          {/* Compare Output Page (Single mode - from results) */}
+          <Route path="/compare-output" element={
+            <CompareXLSX 
+              mode="single" 
+              outputFile={outputFilename}
+              onBack={handleBackToResults}
             />
+          } />
 
-            {extractionStatus === 'completed' && (
-              <div className="success-section">
-                <DataPreview jobId={jobId} />
-                <div className="action-buttons">
-                  <DownloadButton jobId={jobId} />
-                </div>
-              </div>
-            )}
-
-            <button onClick={handleReset} className="reset-btn">
-              Extract Another Document
-            </button>
-          </div>
-        )}
+          {/* Catch all other routes and redirect to home */}
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
       </main>
 
-      <footer className="app-footer">
-        <p>Powered by LLM Technology | Built with React & FastAPI</p>
-      </footer>
+      <Footer />
     </div>
   );
 }
