@@ -157,7 +157,7 @@ The API will be available at `http://localhost:8000`
 
 ## 🔧 LLM Configuration
 
-This system uses **Google Gemini 2.5 Flash** for intelligent data extraction.
+This system uses **Google Gemini 2.0 Flash (Experimental)** for intelligent data extraction.
 
 ### Get Your Gemini API Key
 
@@ -169,82 +169,153 @@ This system uses **Google Gemini 2.5 Flash** for intelligent data extraction.
    GEMINI_API_KEY=your-key-here
    ```
 
-### Supported Models
-- `gemini-2.5-flash` (current default - fast & accurate)
-- `gemini-1.5-pro` (older, more expensive)
-- `gemini-1.5-flash` (legacy)
+### Current Model
+- `gemini-2.0-flash-exp` (current default - fast, accurate & experimental)
 
-Change the model in `.env`:
-```env
-LLM_MODEL=gemini-2.5-flash
+### Alternative Supported Models
+- `gemini-1.5-pro` (stable, more expensive)
+- `gemini-1.5-flash` (stable, fast)
+- `gemini-2.5-flash` (if available in your region)
+
+Change the model in `backend/app/services/gemini_extractor.py`:
+```python
+model = genai.GenerativeModel('gemini-2.0-flash-exp')
 ```
 
 ## 🔧 API Documentation
 
 ### Endpoints
 
-#### `POST /api/upload`
+#### `GET /`
+Welcome endpoint with API information.
+
+#### `GET /health`
+Health check endpoint for monitoring.
+
+**Response**:
+```json
+{
+  "status": "healthy",
+  "timestamp": "2025-01-01T00:00:00",
+  "database": "connected",
+  "output_dir": "/path/to/outputs"
+}
+```
+
+#### `POST /api/extract`
 Upload PDF files for extraction.
 
 **Request**:
-- `files`: List of PDF files (multipart/form-data)
-- `template_id`: "template_1" or "template_2"
+- `files`: PDF file(s) (multipart/form-data)
+- `template`: Optional template identifier
 
 **Response**:
 ```json
 {
   "job_id": "uuid",
   "status": "processing",
-  "files_count": 1,
-  "message": "Processing 1 file(s)"
+  "filename": "document.pdf",
+  "output_filename": "document_Extracted_Fund_Data.xlsx",
+  "created_at": "2025-01-01T00:00:00"
 }
 ```
 
-#### `GET /api/status/{job_id}`
-Get extraction job status.
-
-**Response**:
-```json
-{
-  "job_id": "uuid",
-  "status": "processing",
-  "progress": 45.5,
-  "files_processed": 1,
-  "total_files": 2,
-  "errors": [],
-  "created_at": "2024-01-01T00:00:00",
-  "completed_at": null
-}
-```
-
-#### `GET /api/download/{job_id}`
-Download extracted Excel file.
+#### `GET /api/download/{filename}`
+Download generated Excel file.
 
 **Response**: Excel file (.xlsx)
 
+#### `GET /api/preview/{filename}`
+Get Excel file data for preview.
+
+**Response**:
+```json
+{
+  "sheets": ["Sheet1", "Sheet2"],
+  "data": {
+    "Sheet1": [[row1_data], [row2_data], ...]
+  }
+}
+```
+
+#### `GET /api/files`
+List all uploaded files with pagination.
+
+**Query Parameters**:
+- `skip`: Offset for pagination (default: 0)
+- `limit`: Number of records (default: 50)
+- `status`: Filter by status (uploaded, processing, completed, failed)
+
+**Response**:
+```json
+{
+  "total": 10,
+  "files": [
+    {
+      "id": 1,
+      "filename": "document.pdf",
+      "status": "completed",
+      "uploaded_at": "2025-01-01T00:00:00",
+      "file_size": 1024000
+    }
+  ]
+}
+```
+
+#### `GET /api/files/{file_id}`
+Get details of a specific file.
+
+#### `GET /api/jobs`
+List all extraction jobs.
+
+#### `GET /api/jobs/{job_id}`
+Get specific job details and status.
+
+**Response**:
+```json
+{
+  "job_id": "uuid",
+  "file_id": 1,
+  "status": "completed",
+  "output_filename": "output.xlsx",
+  "error_message": null,
+  "created_at": "2025-01-01T00:00:00",
+  "completed_at": "2025-01-01T00:05:00"
+}
+```
+
+#### `GET /api/results`
+List all extraction results with filtering.
+
+**Query Parameters**:
+- `skip`: Offset (default: 0)
+- `limit`: Limit (default: 50)
+- `status`: Filter by status
+
+#### `GET /api/results/{result_id}`
+Get specific extraction result details.
+
+#### `GET /api/logs/{file_id}`
+Get extraction logs for a specific file.
+
+#### `DELETE /api/files/{file_id}`
+Delete an uploaded file and associated data.
+
 #### `GET /api/templates`
-List all available extraction templates.
+List available extraction templates.
 
 **Response**:
 ```json
 {
   "templates": {
-    "template_1": "Fund Data Extraction - Template 1",
-    "template_2": "Fund Data Extraction - Template 2"
-  },
-  "template_dir": "/path/to/templates",
-  "count": 2
+    "default": "Fund Data Extraction Template"
+  }
 }
 ```
 
-#### `GET /api/templates/{template_id}`
-Get specific template configuration.
-
-**Response**: Template schema with all fields and validation rules.
-
 ### Interactive API Documentation
 
-Visit `http://localhost:8000/docs` for Swagger UI documentation.
+Visit `http://localhost:8000/docs` for Swagger UI documentation with interactive testing.
 
 ## 📁 Project Structure
 
@@ -328,40 +399,51 @@ pdf-extraction-system/
 └── README.md                      # This file
 ```
 
-## 🎨 Templates
+## 🎨 Extraction Templates
 
-### Template 1 - Comprehensive Fund Data
-Extracts detailed fund information including:
-- Fund details (name, manager, vintage, size)
-- Investment metrics (IRR, TVPI, DPI, RVPI)
-- Capital information (commitments, distributions)
-- Portfolio composition
-- Fee structure
+The system uses intelligent AI-powered prompts to extract structured data from fund report PDFs.
 
-### Template 2 - Key Metrics
-Extracts essential metrics:
-- Fund identification
-- Financial values (NAV, distributions)
-- Performance multiples
-- Key dates
+### Main Template Features
+- **Fund Information**: Name, manager, vintage year, fund size
+- **Performance Metrics**: IRR, TVPI, DPI, RVPI, MOIC
+- **Capital Data**: Commitments, contributions, distributions
+- **Investment Details**: Portfolio holdings, sector allocation
+- **Financial Data**: NAV, fair values, cash positions
+- **Dates & Timeline**: Key dates, reporting periods
+
+### Customization
+Templates can be customized in `backend/app/templates/prompt_template.py` to:
+- Add new data fields
+- Modify extraction logic
+- Change output format
+- Add validation rules
 
 ## 🧪 Testing
 
-### Run Backend Tests
-```bash
-cd backend
-pytest tests/
-```
-
-### Run Accuracy Tests
-```bash
-pytest tests/test_accuracy.py -v
-```
-
 ### Manual Testing
 1. Place test PDFs in `examples/sample_pdfs/`
-2. Run extraction
-3. Compare output with expected files in `examples/output/`
+2. Run the backend server
+3. Upload PDFs through the frontend
+4. Compare outputs in `backend/outputs/` with expected results
+
+### Test Scripts
+```bash
+# Test progressive chunking
+cd backend
+python test_progressive_chunking.py
+
+# Test updated chunking
+python test_updated_chunking.py
+```
+
+### Health Check
+```bash
+# Run health check script
+./test_health.sh
+
+# Or manually
+curl http://localhost:8000/health
+```
 
 ## 🔒 Security Best Practices
 
@@ -376,29 +458,42 @@ pytest tests/test_accuracy.py -v
 
 ### Environment Variables
 
+Create a `.env` file in the backend directory:
+
 | Variable | Description | Default |
 |----------|-------------|---------|
 | `GEMINI_API_KEY` | Google Gemini API key | Required |
-| `LLM_MODEL` | Model to use | gemini-2.5-flash |
-| `LLM_TEMPERATURE` | Model temperature | 0.1 |
-| `LLM_MAX_RETRIES` | Max retry attempts | 3 |
-| `MAX_UPLOAD_SIZE` | Max file size (bytes) | 52428800 |
-| `UPLOAD_DIR` | Upload directory | examples/sample_pdfs |
-| `OUTPUT_DIR` | Output directory | examples/output |
-| `TEMPLATE_DIR` | Template directory | templates |
-| `CORS_ORIGINS` | Allowed origins | ["*"] |
-| `DEBUG` | Debug mode | True |
+| `DATABASE_URL` | SQLite database path | sqlite:///./extractions.db |
+| `UPLOAD_DIR` | Upload directory | ./uploads |
+| `OUTPUT_DIR` | Output directory | ./outputs |
+| `MAX_FILE_SIZE` | Max file size (bytes) | 52428800 (50MB) |
+| `CORS_ORIGINS` | Allowed CORS origins | ["*"] |
+| `DEBUG` | Debug mode | False |
 
-### Supported LLM Models
+### Frontend Configuration
 
-- Google Gemini: `gemini-2.5-flash` (default), `gemini-1.5-pro`, `gemini-1.5-flash`
+Create a `.env` file in the frontend directory:
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `VITE_API_URL` | Backend API URL | http://localhost:8000/api |
+
+### Database
+
+The application uses SQLite by default with the following tables:
+- `uploaded_files`: Track uploaded PDFs
+- `extraction_results`: Store extraction results
+- `extraction_logs`: Log extraction process
+- `job_status`: Track job statuses
 
 ## 📊 Performance
 
-- **Extraction Accuracy**: >95% on test documents
-- **Processing Time**: ~30-60 seconds per document
-- **Concurrent Jobs**: Supports multiple simultaneous extractions
+- **Extraction Accuracy**: >90% on complex fund documents
+- **Processing Time**: ~30-90 seconds per document (depending on size)
+- **Database**: SQLite for fast local storage
 - **File Support**: PDF files up to 50MB
+- **Concurrent Extractions**: Supports multiple simultaneous uploads
+- **AI Model**: Gemini 2.0 Flash Experimental (latest)
 
 ## 🚀 Deployment
 
@@ -451,15 +546,20 @@ Templates are **deployed with the backend**:
 ### Production Deployment Checklist
 
 - [x] Python 3.11.9 configured
-- [x] Templates in backend directory
-- [x] `render.yaml` configured
-- [ ] Set `DEBUG=False` in Render environment
+- [x] SQLite database integration
+- [x] Environment variables configured
+- [x] `render.yaml` configured for backend
+- [x] `vercel.json` configured for frontend
+- [ ] Set `DEBUG=False` in production
 - [ ] Configure production CORS origins
-- [ ] Add `GEMINI_API_KEY` to Render
-- [ ] Configure frontend `VITE_API_URL`
-- [ ] Enable HTTPS (auto on Render)
+- [ ] Add `GEMINI_API_KEY` to deployment platform
+- [ ] Configure frontend `VITE_API_URL` for production
+- [ ] Enable HTTPS (auto on Render/Vercel)
 - [ ] Set up logging and monitoring
-- [ ] Configure file cleanup jobs (optional)
+- [ ] Configure database backups (if needed)
+- [ ] Set up file cleanup jobs (optional)
+- [ ] Test all endpoints in production
+- [ ] Monitor API rate limits
 
 ### Alternative Deployment Options
 
@@ -481,63 +581,73 @@ Use provided configuration files for containerized deployment.
 
 ### Common Issues
 
-**Issue**: "Templates Not Found" error
+**Issue**: Database errors or "table not found"
 ```bash
-# Solution 1: Verify templates exist in backend
-ls backend/templates/
+# Solution: Initialize database
+cd backend
+python -c "from app.database import init_db; init_db()"
+```
 
-# Solution 2: Check API endpoint
-curl https://your-backend-url.com/api/templates
+**Issue**: "API key not configured" or Gemini errors
+```bash
+# Check .env file exists and contains valid key
+cat backend/.env
 
-# Solution 3: Ensure templates are committed to git
-git add backend/templates/
-git commit -m "Add templates"
-git push
+# Verify API key is valid at https://aistudio.google.com/app/apikey
+
+# For Render deployment:
+# Settings → Environment → GEMINI_API_KEY
 ```
 
 **Issue**: "Import errors" when running backend
 ```bash
-# Ensure you're in the correct directory and virtual environment is activated
-cd pdf-extraction-system
-source backend/venv/bin/activate
-export PYTHONPATH="${PYTHONPATH}:$(pwd)"
+# Ensure you're in the correct directory and venv is activated
+cd pdf-extraction-system/backend
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+
+# Install dependencies
+pip install -r requirements.txt
 ```
 
-**Issue**: "API key not configured"
+**Issue**: Frontend can't connect to backend (CORS errors)
 ```bash
-# Check .env file exists and contains valid keys
-cat backend/.env
+# Update backend/.env with frontend URL:
+CORS_ORIGINS=["http://localhost:5173", "https://your-frontend.vercel.app"]
 
-# For Render deployment, verify in dashboard:
-# Settings → Environment → GEMINI_API_KEY
+# Restart backend server
 ```
 
-**Issue**: "CORS errors" in frontend
+**Issue**: File upload shows no files or validation errors
+- Make sure you're selecting PDF files (not images)
+- Check file size is under 50MB
+- For Excel comparison, ensure files are .xlsx or .xls format
+- Clear browser cache if issues persist
+
+**Issue**: Extraction fails or produces empty results
+- Verify PDF is text-based (not scanned images)
+- Check Gemini API quota at Google AI Studio
+- Review extraction logs in the database
+- Try with a different PDF to isolate the issue
+
+**Issue**: "Port already in use" errors
 ```bash
-# Update CORS_ORIGINS in .env to include your frontend URL
-CORS_ORIGINS=["http://localhost:5173", "https://your-domain.com"]
+# Backend (port 8000)
+lsof -ti:8000 | xargs kill -9
+
+# Frontend (port 5173)
+lsof -ti:5173 | xargs kill -9
 ```
 
-**Issue**: "Python version mismatch on Render"
-```bash
-# Verify these files specify Python 3.11.9:
-cat .python-version          # Should be: 3.11.9
-cat backend/runtime.txt      # Should be: python-3.11.9
-cat render.yaml              # Should have: runtime: python-3.11.9
-```
+**Issue**: Excel viewer not showing data
+- Ensure Excel file was successfully generated
+- Check browser console for errors
+- Verify file exists in backend/outputs/
+- Try downloading and opening locally
 
-**Issue**: "PyMuPDF build errors on deployment"
-```bash
-# Ensure requirements.txt has compatible version:
-# PyMuPDF==1.23.26 (has pre-built wheels for Python 3.11)
-# Avoid PyMuPDF 1.24+ (requires Rust compilation)
-```
-
-**Issue**: "Extraction accuracy low"
-- Ensure PDF text is extractable (not scanned images)
-- Try adjusting LLM_TEMPERATURE
-- Customize extraction prompt for specific document types
-- Consider using OCR for scanned documents
+**Issue**: Comparison feature not working
+- Both files must be valid Excel files
+- Files should have similar structure for meaningful comparison
+- Check that output file exists before comparing
 
 ---
 
@@ -557,29 +667,47 @@ This project is licensed under the MIT License.
 
 ## 🙏 Acknowledgments
 
-- FastAPI for the excellent web framework
-- Google Gemini for powerful LLM APIs
-- pdfplumber & PyMuPDF for PDF parsing
-- openpyxl & xlsxwriter for Excel generation
-- React & Vite for modern frontend development
+- **FastAPI** - High-performance Python web framework
+- **Google Gemini AI** - Advanced LLM for data extraction
+- **React + Vite** - Modern frontend framework and build tool
+- **React Router** - Client-side routing
+- **React Hot Toast** - Beautiful notification system
+- **React Dropzone** - File upload with drag & drop
+- **PyMuPDF (fitz)** - PDF text extraction
+- **pdfplumber** - Additional PDF parsing
+- **openpyxl** - Excel file generation and manipulation
+- **xlsx (SheetJS)** - Frontend Excel file reading
+- **SQLAlchemy** - SQL toolkit and ORM
+- **SQLite** - Embedded database
 
 ## 📞 Support
 
 For issues and questions:
-- Create an issue on GitHub
-- Check existing documentation
-- Review API documentation at `/docs`
+- 🐛 Create an issue on GitHub
+- 📖 Check the troubleshooting section above
+- 📚 Review API documentation at `/docs`
+- 💬 Check existing issues for solutions
 
 ## 🔄 Version History
 
-### v1.0.0 (Current)
-- Initial production release
-- Google Gemini 2.5 Flash integration
-- Three extraction templates (Template 1, 2, Portfolio Summary)
-- React frontend with real-time progress
-- Enhanced extraction with validation
-- Render deployment configuration
-- Python 3.11.9 compatibility
+### v2.0.0 (Current)
+- ✅ Database integration with SQLite
+- ✅ Excel viewer and preview functionality
+- ✅ Excel comparison tool (dual mode & single mode)
+- ✅ Extraction history with full record tracking
+- ✅ Enhanced UI with React Router
+- ✅ File validation with toast notifications
+- ✅ Multiple component pages (Processing, Results, History, Compare)
+- ✅ Real-time progress tracking
+- ✅ Google Gemini 2.0 Flash Experimental integration
+- ✅ Improved error handling and logging
+- ✅ RESTful API with comprehensive endpoints
+
+### v1.0.0 (Initial)
+- Basic PDF extraction
+- Gemini AI integration
+- Excel output generation
+- Simple frontend interface
 
 ---
 
