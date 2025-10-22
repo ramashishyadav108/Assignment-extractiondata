@@ -1,21 +1,68 @@
 import React, { useCallback, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
+import toast from 'react-hot-toast';
 
 const FileUpload = ({ onFilesSelected, disabled }) => {
   const [files, setFiles] = useState([]);
 
-  const onDrop = useCallback((acceptedFiles) => {
-    setFiles(acceptedFiles);
-    onFilesSelected(acceptedFiles);
+  const onDrop = useCallback((acceptedFiles, rejectedFiles) => {
+    // Handle rejected files
+    if (rejectedFiles && rejectedFiles.length > 0) {
+      rejectedFiles.forEach(({ file, errors }) => {
+        errors.forEach(error => {
+          if (error.code === 'file-invalid-type') {
+            toast.error(`${file.name} is not a PDF file. Please upload only PDF files.`, {
+              duration: 4000,
+              icon: '📄'
+            });
+          } else if (error.code === 'file-too-large') {
+            toast.error(`${file.name} is too large. Maximum file size is 50MB.`, {
+              duration: 4000,
+              icon: '⚠️'
+            });
+          } else {
+            toast.error(`${file.name} was rejected: ${error.message}`, {
+              duration: 4000
+            });
+          }
+        });
+      });
+      return;
+    }
+
+    // Handle accepted files
+    if (acceptedFiles && acceptedFiles.length > 0) {
+      setFiles(acceptedFiles);
+      onFilesSelected(acceptedFiles);
+    }
   }, [onFilesSelected]);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
-    accept: {
-      'application/pdf': ['.pdf']
-    },
+    // Remove accept to show all files in file picker
+    // Validation happens in the validator function
     maxSize: 50 * 1024 * 1024, // 50MB
-    disabled
+    disabled,
+    validator: (file) => {
+      // Custom validator - files will be visible but validated on selection
+      const isPDF = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
+      
+      if (!isPDF) {
+        return {
+          code: 'file-invalid-type',
+          message: 'Only PDF files are allowed'
+        };
+      }
+      
+      if (file.size > 50 * 1024 * 1024) {
+        return {
+          code: 'file-too-large',
+          message: 'File is larger than 50MB'
+        };
+      }
+      
+      return null;
+    }
   });
 
   const removeFile = (index) => {

@@ -1,29 +1,46 @@
 # 📄 PDF Data Extraction System
 
-A production-ready web application that extracts structured data from PDF documents using LLM technology (OpenAI GPT-4 / Anthropic Claude) and outputs formatted Excel files.
+A production-ready web application that extracts structured data from PDF documents using Google Gemini AI and outputs formatted Excel files.
 
 ![Python](https://img.shields.io/badge/Python-3.11.9-blue)
-![FastAPI](https://img.shields.io/badge/FastAPI-0.104-green)
+![FastAPI](https://img.shields.io/badge/FastAPI-0.109-green)
 ![React](https://img.shields.io/badge/React-18.2-blue)
-![Gemini](https://img.shields.io/badge/Gemini-2.5--Flash-orange)
+![Gemini](https://img.shields.io/badge/Gemini-2.0--Flash-orange)
 ![License](https://img.shields.io/badge/License-MIT-yellow)
 
 ## 🎯 Features
 
-- **Multi-file PDF Upload**: Drag & drop interface supporting multiple PDFs
-- **Intelligent Extraction**: LLM-powered data extraction with high accuracy
-- **Multiple Templates**: Support for different extraction schemas
-- **Real-time Progress**: Live extraction status and progress tracking
-- **Excel Export**: Professional formatted Excel output
-- **Validation**: Multi-layer validation against source documents
-- **Error Handling**: Comprehensive error handling and retry logic
+- **PDF Upload**: Drag & drop interface with file validation and error notifications
+- **Intelligent Extraction**: Gemini AI-powered data extraction with high accuracy
+- **Excel Export**: Professional formatted Excel output with multiple sheets
+- **Excel Viewer**: Built-in viewer to preview extracted data before download
+- **Excel Comparison**: Compare two Excel files or compare output with expected results
+- **Real-time Processing**: Live progress tracking with detailed status updates
+- **Extraction History**: View and access all previous extractions
+- **Error Handling**: Comprehensive validation with user-friendly toast notifications
+- **Database Integration**: SQLite database for storing extraction records
+- **File Type Validation**: Smart file validation that shows helpful error messages
 
 ## 🏗️ Architecture
 
 ```
-User → React Frontend → FastAPI Backend → PDF Parser → LLM API → Excel Generator → Download
-                              ↓
-                        Job Management
+User Interface (React + Vite)
+    ↓
+File Upload & Validation
+    ↓
+FastAPI Backend
+    ↓
+PDF Extractor (PyMuPDF/pdfplumber)
+    ↓
+Gemini AI (gemini-2.0-flash-exp)
+    ↓
+Excel Generator (openpyxl)
+    ↓
+SQLite Database (Storage)
+    ↓
+Excel Viewer & Comparison Tools
+    ↓
+Download / History
 ```
 
 ## 📋 Prerequisites
@@ -64,8 +81,11 @@ GEMINI_API_KEY=your-gemini-api-key-here
 
 5. **Run the server**:
 ```bash
-cd ..
-uvicorn backend.app.main:app --reload
+# Using the start script (recommended)
+./start.sh
+
+# Or manually
+uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 ```
 
 The API will be available at `http://localhost:8000`
@@ -95,12 +115,43 @@ The API will be available at `http://localhost:8000`
 
 ## 📖 Usage
 
+### Basic Extraction Flow
+
 1. **Open the application** at `http://localhost:5173`
-2. **Select extraction template** (Template 1 or Template 2)
-3. **Upload PDF files** via drag & drop or file selector
+2. **Upload PDF files** via drag & drop or file selector
+   - Only PDF files are accepted (images/other files show error toast)
+   - Maximum file size: 50MB
+3. **Select extraction template** (if applicable)
 4. **Click "Start Extraction"** to begin processing
-5. **Monitor progress** in real-time
-6. **Download Excel file** when complete
+5. **Monitor progress** with real-time updates
+6. **Preview extracted data** in the built-in Excel viewer
+7. **Download Excel file** when satisfied with results
+8. **Access history** to view all previous extractions
+
+### Excel Comparison
+
+#### Compare Two Excel Files
+1. Click **"Compare Excel"** in the header
+2. Upload two Excel files to compare
+3. View detailed comparison with:
+   - Overall accuracy percentage
+   - Cell-by-cell differences highlighted
+   - Sheet-wise comparison
+   - Match/difference statistics
+
+#### Compare with Expected Output
+1. After extraction, on the results page
+2. Click **"Compare with Expected Output"**
+3. Upload your expected output file
+4. System compares it with the extracted output
+5. View accuracy metrics and differences
+
+### View Extraction History
+1. Click **"History"** in the header
+2. Browse all previous extractions
+3. View details (date, filename, status)
+4. Download previous outputs
+5. Compare previous results
 
 ---
 
@@ -201,65 +252,80 @@ Visit `http://localhost:8000/docs` for Swagger UI documentation.
 pdf-extraction-system/
 ├── backend/
 │   ├── app/
-│   │   ├── api/              # API endpoints
-│   │   │   ├── upload.py
-│   │   │   ├── status.py
-│   │   │   ├── download.py
-│   │   │   ├── templates.py  # Template listing API
-│   │   │   ├── extraction.py
-│   │   │   └── enhanced_extraction.py
-│   │   ├── services/         # Core services
-│   │   │   ├── pdf_parser.py
-│   │   │   ├── llm_extractor.py
-│   │   │   ├── enhanced_llm_extractor.py
-│   │   │   ├── excel_generator.py
-│   │   │   ├── enhanced_excel_generator.py
-│   │   │   ├── validator.py
-│   │   │   ├── template_manager.py
-│   │   │   └── job_manager.py
-│   │   ├── models/           # Data models
-│   │   │   └── schemas.py
-│   │   ├── config/           # Configuration
-│   │   │   └── settings.py
-│   │   └── main.py           # FastAPI app
-│   ├── templates/            # Extraction templates (deployed with backend)
-│   │   ├── template_1.json
-│   │   ├── template_2.json
-│   │   └── portfolio_summary_template.json
-│   ├── requirements.txt
-│   ├── runtime.txt           # Python version for Render
-│   ├── setup_dirs.sh
-│   └── .env.example
+│   │   ├── __init__.py
+│   │   ├── config.py              # Application configuration
+│   │   ├── database/              # Database layer
+│   │   │   ├── __init__.py
+│   │   │   ├── database.py        # Database connection
+│   │   │   ├── models.py          # SQLAlchemy models
+│   │   │   └── crud.py            # CRUD operations
+│   │   ├── services/              # Core business logic
+│   │   │   ├── __init__.py
+│   │   │   ├── pdf_extractor.py   # PDF text extraction
+│   │   │   ├── gemini_extractor.py # Gemini AI integration
+│   │   │   └── excel_generator.py # Excel file generation
+│   │   └── templates/             # Prompt templates
+│   │       ├── __init__.py
+│   │       ├── prompt_template.py  # Main prompt template
+│   │       ├── prompt_template_simple.py
+│   │       └── prompt_template_old.py
+│   ├── outputs/                   # Generated Excel outputs
+│   ├── main.py                    # FastAPI application entry
+│   ├── requirements.txt           # Python dependencies
+│   ├── runtime.txt                # Python version for deployment
+│   ├── start.sh                   # Startup script
+│   ├── setup_dirs.sh              # Directory setup script
+│   ├── test_progressive_chunking.py
+│   ├── test_updated_chunking.py
+│   └── .env.example               # Environment variables template
 │
 ├── frontend/
 │   ├── src/
-│   │   ├── components/       # React components
-│   │   │   ├── FileUpload.jsx
-│   │   │   ├── TemplateSelector.jsx
-│   │   │   ├── ExtractionProgress.jsx
-│   │   │   ├── DataPreview.jsx
-│   │   │   └── DownloadButton.jsx
-│   │   ├── services/         # API services
-│   │   │   └── api.js
-│   │   ├── App.jsx
-│   │   ├── App.css
-│   │   └── main.jsx
-│   ├── package.json
-│   ├── vite.config.js
-│   └── index.html
+│   │   ├── components/            # React components
+│   │   │   ├── FileUpload.jsx     # Drag & drop file upload
+│   │   │   ├── TemplateSelector.jsx # Template selection
+│   │   │   ├── ExtractionProgress.jsx # Progress display
+│   │   │   ├── ProcessingPage.jsx # Processing UI
+│   │   │   ├── ResultsPage.jsx    # Results display
+│   │   │   ├── HistoryPage.jsx    # Extraction history
+│   │   │   ├── DataPreview.jsx    # Data preview
+│   │   │   ├── DownloadButton.jsx # Download functionality
+│   │   │   ├── ExcelViewer.jsx    # Excel file viewer
+│   │   │   ├── ExcelSheetViewer.jsx # Sheet viewer
+│   │   │   ├── CompareXLSX.jsx    # Excel comparison tool
+│   │   │   ├── Header.jsx         # App header
+│   │   │   └── Footer.jsx         # App footer
+│   │   ├── services/              # API services
+│   │   │   └── api.js             # API client
+│   │   ├── styles/                # Component styles
+│   │   │   ├── CompareXLSX.css
+│   │   │   ├── DataPreview.css
+│   │   │   ├── ExcelSheetViewer.css
+│   │   │   ├── ExcelViewer.css
+│   │   │   ├── Footer.css
+│   │   │   ├── Header.css
+│   │   │   ├── HistoryPage.css
+│   │   │   ├── ProcessingPage.css
+│   │   │   └── ResultsPage.css
+│   │   ├── App.jsx                # Main app component
+│   │   ├── App.css                # Global styles
+│   │   ├── index.css              # Base styles
+│   │   └── main.jsx               # React entry point
+│   ├── index.html                 # HTML template
+│   ├── package.json               # Node dependencies
+│   ├── vite.config.js             # Vite configuration
+│   └── vercel.json                # Vercel deployment config
 │
-├── tests/                    # Test files
-│   ├── test_extraction.py
-│   └── test_accuracy.py
+├── examples/                      # Sample files
+│   ├── sample_pdfs/               # Example PDF inputs
+│   └── output/                    # Example outputs
 │
-├── examples/                 # Sample files
-│   ├── sample_pdfs/
-│   └── output/
-│
-├── .python-version           # Python version specification
-├── render.yaml               # Render deployment config
-├── .gitignore
-└── README.md
+├── .env.example                   # Environment variables example
+├── .python-version                # Python version (3.11.9)
+├── .gitignore                     # Git ignore rules
+├── render.yaml                    # Render deployment config
+├── test_health.sh                 # Health check script
+└── README.md                      # This file
 ```
 
 ## 🎨 Templates

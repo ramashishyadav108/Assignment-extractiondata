@@ -41,12 +41,10 @@ wheels/
 Thumbs.db
 
 # Uploads and outputs (don't commit uploaded files and generated outputs)
-uploads/*
-!uploads/.gitkeep
-output/*
-!output/.gitkeep
-jobs/*
-!jobs/.gitkeep
+backend/uploads/*
+!backend/uploads/.gitkeep
+backend/outputs/*
+!backend/outputs/.gitkeep
 
 # Examples directories (keep structure but ignore uploaded PDFs and outputs)
 examples/sample_pdfs/*.pdf

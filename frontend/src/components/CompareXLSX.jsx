@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import * as XLSX from 'xlsx';
+import toast from 'react-hot-toast';
 import '../styles/CompareXLSX.css';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
@@ -46,6 +47,33 @@ const CompareXLSX = ({ mode = 'dual', outputFile = null, onBack }) => {
   const handleFileChange = (event, fileNumber) => {
     const file = event.target.files[0];
     if (file) {
+      // Validate file type
+      const validExtensions = ['.xlsx', '.xls'];
+      const fileName = file.name.toLowerCase();
+      const isValidType = validExtensions.some(ext => fileName.endsWith(ext));
+      
+      if (!isValidType) {
+        toast.error(`Invalid file type. Please upload only Excel files (.xlsx or .xls)`, {
+          duration: 4000,
+          icon: '📊'
+        });
+        // Clear the file input
+        event.target.value = '';
+        return;
+      }
+
+      // Validate file size (max 10MB for Excel files)
+      const maxSize = 10 * 1024 * 1024; // 10MB
+      if (file.size > maxSize) {
+        toast.error(`File is too large. Maximum size is 10MB.`, {
+          duration: 4000,
+          icon: '⚠️'
+        });
+        // Clear the file input
+        event.target.value = '';
+        return;
+      }
+
       if (fileNumber === 1) {
         setFile1(file);
       } else {
@@ -300,7 +328,6 @@ const CompareXLSX = ({ mode = 'dual', outputFile = null, onBack }) => {
               <input
                 type="file"
                 id="file1"
-                accept=".xlsx,.xls"
                 onChange={(e) => handleFileChange(e, 1)}
                 className="file-input"
               />
@@ -319,7 +346,6 @@ const CompareXLSX = ({ mode = 'dual', outputFile = null, onBack }) => {
                 <input
                   type="file"
                   id="file2"
-                  accept=".xlsx,.xls"
                   onChange={(e) => handleFileChange(e, 2)}
                   className="file-input"
                 />

@@ -1,12 +1,10 @@
 #!/bin/bash
-# Create necessary directories for the application
+# Setup directories for Render deployment
 
 echo "Setting up directories..."
 
-# Create directories if they don't exist
-mkdir -p examples/sample_pdfs
-mkdir -p examples/output
-mkdir -p templates
-mkdir -p jobs
+mkdir -p uploads
+mkdir -p outputs
+mkdir -p static
 
-echo "Directory setup complete!"
+echo "Directories created successfully!"

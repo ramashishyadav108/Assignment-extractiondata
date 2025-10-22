@@ -1,37 +1,14 @@
-# FastAPI and Web Framework
-fastapi==0.104.1
-uvicorn[standard]==0.24.0
+fastapi==0.109.0
+uvicorn==0.27.0
 python-multipart==0.0.6
-
-# PDF Processing
-pdfplumber==0.10.3
-PyMuPDF==1.23.26
-
-# Excel Generation
+pdfplumber==0.10.4
 openpyxl==3.1.2
-xlsxwriter==3.1.9
-
-# LLM Integration
-google-generativeai>=0.8.0
-# langchain==0.0.350  # Optional - not currently used
-# langchain-google-genai==0.0.6  # Optional - not currently used
-
-# Data Validation & Settings
-pydantic==2.5.2
-pydantic-settings==2.1.0
-
-# Utilities
+google-generativeai==0.3.2
 python-dotenv==1.0.0
-tenacity==8.2.3
+aiofiles==23.2.1
 
-# Database (Optional)
+# Database dependencies
+sqlalchemy==2.0.25
 psycopg2-binary==2.9.9
-sqlalchemy==2.0.23
-
-# CORS
-python-jose[cryptography]==3.3.0
-
-# Testing
-pytest==7.4.3
-pytest-asyncio==0.21.1
-httpx==0.25.2
+alembic==1.13.1
+asyncpg==0.29.0
